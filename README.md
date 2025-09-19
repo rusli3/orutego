@@ -126,4 +126,5 @@ If you encounter issues:
 ---
 
 **Powered by Google Maps Platform APIs**
+
 Made with ❤️ by rusli3
