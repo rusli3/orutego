@@ -65,7 +65,7 @@ Example:
 
 ## 🎨 Single-Screen Design
 
-The application features a **no-scroll, single-screen experience** with:
+The application features a **single-screen experience** with:
 - **Compact Layout**: All controls fit within viewport height
 - **Responsive Design**: Adapts to different screen sizes
 - **Efficient Space Usage**: Form and results displayed side-by-side
