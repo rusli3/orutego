@@ -25,9 +25,10 @@ orutego is a modern web application for calculating travel distance (km) and tra
 
 ### Installation
 
-1. **Clone or download the project files**:
+1. **Clone the repository**:
    ```bash
-   cd C:\Project_App\orutego
+   git clone https://github.com/yourusername/orutego.git
+   cd orutego
    ```
 
 2. **Install dependencies**:
@@ -113,20 +114,24 @@ lat_origin,lng_origin,lat_destination,lng_destination,distance_km,HH:MM,decimal_
 - Informative error messages for API failures
 - Network error handling with retry suggestions
 
-## 🗂️ Project Structure
+## 🗪️ Project Structure
 
 ```
 orutego/
-├── app.py              # Flask backend application
-├── requirements.txt    # Python dependencies
-├── README.md          # This file
-├── prd.md             # Product requirements document
-├── layoutmagic.md     # React reference implementation
+├── .gitignore             # Git ignore file
+├── LICENSE                # MIT License
+├── README.md              # This file
+├── CHANGELOG.md           # Version history and changes
+├── DEMO.md                # Testing guide with examples
+├── DEPLOYMENT.md          # Production deployment guide
+├── app.py                 # Flask backend application
+├── requirements.txt       # Python dependencies
+├── test_decimal_conversion.py  # Test suite for decimal hours
 ├── templates/
-│   └── index.html     # Main HTML template
+│   └── index.html        # Main HTML template
 └── static/
-    ├── styles.css     # CSS styling and animations
-    └── script.js      # JavaScript application logic
+    ├── styles.css        # CSS styling and animations
+    └── script.js         # JavaScript application logic
 ```
 
 ## 🚦 Getting Your Google Maps API Key

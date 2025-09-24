@@ -2,134 +2,134 @@
 
 ## 🚀 Quick Demo
 
-Setelah aplikasi berjalan di `http://localhost:5000`, ikuti langkah-langkah berikut:
+After the application is running at `http://localhost:5000`, follow these steps:
 
 ### 1. Setup API Key
-1. Masukkan Google Maps API Key Anda di kolom "Google Maps API Key"
-2. Klik tombol "Save" - tombol akan berubah menjadi hijau dan menampilkan "Saved"
-3. Google Maps akan otomatis dimuat di latar belakang
+1. Enter your Google Maps API Key in the "Google Maps API Key" field
+2. Click the "Save" button - it will turn green and display "Saved"
+3. Google Maps will automatically load in the background
 
-### 2. Test Perhitungan Rute
-Coba dengan alamat-alamat berikut untuk testing:
+### 2. Test Route Calculations
+Try these sample addresses for testing:
 
-#### Contoh 1: Rute dalam kota (Indonesia)
-- **Origin**: `Jl. Gajah Mada No.1, Pontianak, Kalimantan Barat`
-- **Destination**: `Jl. Ahmad Yani, Pontianak, Kalimantan Barat`
+#### Example 1: Local Route (Indonesia)
+- **Origin**: `Jl. Gajah Mada No.1, Pontianak, West Kalimantan`
+- **Destination**: `Jl. Ahmad Yani, Pontianak, West Kalimantan`
 - **Travel Mode**: Driving
-- **Expected**: Jarak sekitar 2-3 km, waktu 5-10 menit
+- **Expected**: Distance ~2-3 km, time ~5-10 minutes
 
-#### Contoh 2: Rute antar kota
-- **Origin**: `Jakarta Pusat, DKI Jakarta`
-- **Destination**: `Bandung, Jawa Barat`
+#### Example 2: Intercity Route
+- **Origin**: `Central Jakarta, DKI Jakarta`
+- **Destination**: `Bandung, West Java`
 - **Travel Mode**: Driving
-- **Expected**: Jarak sekitar 150 km, waktu 3-4 jam
+- **Expected**: Distance ~150 km, time ~3-4 hours
 
-#### Contoh 3: Rute internasional
+#### Example 3: International Route
 - **Origin**: `Kuala Lumpur, Malaysia`
 - **Destination**: `Singapore`
 - **Travel Mode**: Driving
-- **Expected**: Jarak sekitar 350 km, waktu 4-5 jam
+- **Expected**: Distance ~350 km, time ~4-5 hours
 
-### 3. Fitur yang Dapat Ditest
+### 3. Features to Test
 
 #### ✅ Address Input & Validation
-- Coba kosongkan salah satu field → akan muncul error
-- Masukkan alamat yang tidak valid → akan ada error handling
+- Try leaving one field empty → error message will appear
+- Enter invalid addresses → proper error handling is displayed
 
 #### ✅ Address Swap
-- Isi origin dan destination
-- Klik tombol panah ↕️ di tengah
-- Alamat akan bertukar posisi dengan animasi
+- Fill in origin and destination
+- Click the arrow button ↕️ in the center
+- Addresses will swap positions with animation
 
 #### ✅ Travel Mode Selection
-- Coba semua mode: Driving, Walking, Cycling, Transit
-- Perhatikan perubahan hasil perhitungan
+- Try all modes: Driving, Walking, Cycling, Transit
+- Notice the changes in calculation results
 
 #### ✅ Interactive Google Maps
-- **Zoom & Pan**: Gunakan mouse wheel dan drag
-- **Markers**: Klik marker A (origin) dan B (destination) untuk info
-- **Route**: Akan menampilkan rute sebenarnya dari Google
-- **Auto-fit**: Map otomatis menyesuaikan untuk menampilkan seluruh rute
+- **Zoom & Pan**: Use mouse wheel and drag
+- **Markers**: Click marker A (origin) and B (destination) for info
+- **Route**: Displays actual route from Google Maps
+- **Auto-fit**: Map automatically adjusts to show entire route
 
 #### ✅ Results Display
-- **Distance**: Dalam kilometer
-- **Time**: Format HH:MM dan desimal hours
-- **Coordinates**: Data CSV format dengan presisi 6 decimal
-- **Copy to Clipboard**: Klik tombol copy (📋) untuk menyalin coordinate data
+- **Distance**: In kilometers
+- **Time**: Format HH:MM and decimal hours
+- **Coordinates**: CSV format data with 6 decimal precision
+- **Copy to Clipboard**: Click copy button (📋) to copy coordinate data
 
 #### ✅ Copy to Clipboard Feature
-- Klik tombol hijau dengan icon copy di sebelah coordinate data
-- Data akan tersalin ke clipboard dalam format CSV
-- Feedback visual: icon berubah jadi ✓ dan pesan konfirmasi
-- Kompatibel dengan semua browser modern
+- Click the green button with copy icon next to coordinate data
+- Data will be copied to clipboard in CSV format
+- Visual feedback: icon changes to ✓ with confirmation message
+- Compatible with all modern browsers
 
 ## 🔧 Troubleshooting
 
-### Google Maps tidak muncul?
-1. Pastikan API key sudah disimpan
-2. Check console browser (F12) untuk error
-3. Pastikan Maps JavaScript API sudah diaktifkan
-4. Cek quota dan billing di Google Cloud Console
+### Google Maps not showing?
+1. Ensure API key is saved properly
+2. Check browser console (F12) for errors
+3. Verify Maps JavaScript API is enabled
+4. Check quota and billing in Google Cloud Console
 
 ### Calculation failed?
-1. Pastikan semua 4 APIs sudah diaktifkan:
+1. Ensure all 4 APIs are enabled:
    - Geocoding API
    - Distance Matrix API
    - Directions API
    - Maps JavaScript API
-2. Cek apakah API key memiliki restrictions yang terlalu ketat
+2. Check if API key has overly restrictive limitations
 
 ### Network Error?
-1. Pastikan koneksi internet stabil
-2. Cek apakah ada firewall yang memblokir Google APIs
-3. Restart aplikasi Flask
+1. Ensure stable internet connection
+2. Check if firewall is blocking Google APIs
+3. Restart the Flask application
 
 ## 🌟 Advanced Testing
 
 ### Test Multiple Calculations
-1. Lakukan beberapa perhitungan berturut-turut
-2. Perhatikan caching - hasil tersimpan di session
-3. Refresh browser - data terakhir tetap ada (localStorage)
+1. Perform several calculations in succession
+2. Notice caching - results are stored in session
+3. Refresh browser - last data persists (localStorage)
 
 ### Test Responsive Design
-1. Resize window browser
-2. Test di mobile view (F12 → Device simulation)
-3. Semua elemen harus tetap accessible
+1. Resize browser window
+2. Test in mobile view (F12 → Device simulation)
+3. All elements should remain accessible
 
 ### Test Error Handling
-1. Matikan koneksi internet → harus ada error message
-2. Gunakan API key yang salah → error handling
-3. Input alamat yang tidak ada → graceful failure
+1. Disable internet connection → should show error message
+2. Use incorrect API key → proper error handling
+3. Input non-existent addresses → graceful failure
 
 ## 📱 Production Checklist
 
-Sebelum deploy ke production:
+Before deploying to production:
 
-- [ ] Ganti `app.secret_key` dengan key yang aman
-- [ ] Set `debug=False` di `app.run()`
-- [ ] Restrict API key dengan domain yang benar
+- [ ] Change `app.secret_key` to a secure key
+- [ ] Set `debug=False` in `app.run()`
+- [ ] Restrict API key with proper domain
 - [ ] Setup proper web server (nginx + gunicorn)
 - [ ] Enable HTTPS
 - [ ] Monitor API usage & costs
 - [ ] Setup error logging
-- [ ] Test dengan load testing tools
+- [ ] Test with load testing tools
 
 ## 🎯 Expected Results Format
 
-Output coordinate data harus dalam format:
+Output coordinate data should be in this format:
 ```
 lat_origin,lng_origin,lat_destination,lng_destination,distance_km,HH:MM,decimal_hours
 ```
 
-Contoh:
+Example:
 ```
 -0.026700,109.342100,-0.114200,109.406500,12.84,01:30,1.50
 ```
 
-Aplikasi sekarang sudah menggunakan **Google Maps JavaScript API** yang memberikan:
-- ✅ Peta interaktif yang sesungguhnya
-- ✅ Rute yang akurat sesuai kondisi jalan
-- ✅ Zoom, pan, dan navigasi map
-- ✅ Info windows dengan detail koordinat
-- ✅ Marker custom dengan label A dan B
-- ✅ Automatic bounds fitting untuk menampilkan seluruh rute
+The application now uses **Google Maps JavaScript API** which provides:
+- ✅ Real interactive maps
+- ✅ Accurate routes based on actual road conditions
+- ✅ Zoom, pan, and map navigation
+- ✅ Info windows with coordinate details
+- ✅ Custom markers with labels A and B
+- ✅ Automatic bounds fitting to display entire route

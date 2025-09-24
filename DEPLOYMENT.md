@@ -228,12 +228,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.9
+        python-version: '3.11'
     
     - name: Install dependencies
       run: |
@@ -269,6 +269,9 @@ Consider adding Redis or Memcached for session storage in high-traffic scenarios
 
 ### Health Check Endpoint
 ```python
+from datetime import datetime
+from flask import jsonify
+
 @app.route('/health')
 def health_check():
     return jsonify({
