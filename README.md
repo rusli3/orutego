@@ -166,3 +166,5 @@ This project is open source. Feel free to use and modify as needed.
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## Made with ❤️ by rusli3
