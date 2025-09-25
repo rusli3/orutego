@@ -27,7 +27,7 @@ orutego is a modern web application for calculating travel distance (km) and tra
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/orutego.git
+   git clone https://github.com/rusli3/orutego.git
    cd orutego
    ```
 
