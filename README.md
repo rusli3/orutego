@@ -11,6 +11,7 @@ orutego is a modern web application for calculating travel distance (km) and tra
 - 🗺️ **Interactive Map**: Route visualization with markers and polylines
 - 💾 **Session Management**: API key storage and result caching
 - 📋 **Copy to Clipboard**: Easy copying of coordinate data in CSV format
+- 📦 **Mass Search**: Bulk address geocoding with visual status and CSV export support
 
 ## 🚀 Getting Started
 
@@ -55,18 +56,36 @@ orutego is a modern web application for calculating travel distance (km) and tra
 5. **View Results**: Coordinates, distance, and time will be displayed
 6. **View Map**: Interactive map with route will appear below
 
+### 📦 Mass Search Mode
+
+1. **Switch Tab**: Click the "Mass Search" tab at the top of the sidebar
+2. **Input Addresses**: Enter multiple addresses (one per line) in the text area
+3. **Process**: Click "Process Addresses" to geocode them in bulk
+4. **View Results**: See the status, latitude, and longitude for each address
+5. **Export**: Click "Copy All (CSV)" to get a CSV-formatted list of results
+
 ## 📊 Data Output Format
 
-The coordinate data is displayed in comma-separated format:
-
-```
-lat_origin,lng_origin,lat_destination,lng_destination,distance_km,HH:MM,decimal_hours
-```
-
-**Example**:
-```
--0.026700,109.342100,-0.114200,109.406500,12.84,01:30,1.50
-```
+The coordinate data is displayed in a raw comma-separated format **without headers**:
+ 
+ ```
+ lat_origin,lng_origin,lat_destination,lng_destination,distance_km,HH:MM,decimal_hours
+ ```
+ 
+ **Example**:
+ ```
+ -0.026700,109.342100,-0.114200,109.406500,12.84,01:30,1.50
+ ```
+ 
+ ### Mass Search Export Format
+ 
+ The mass search results are exported in **CSV format with headers**:
+ 
+ ```csv
+ Address,Latitude,Longitude,Status
+ "Jalan Jendral Ahmad Yani, Pontianak",-0.032100,109.345600,OK
+ "Invalid Address Example",-,-,ZERO_RESULTS
+ ```
 
 ## 🔧 Technical Details
 

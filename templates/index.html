@@ -32,6 +32,13 @@
                         <h1 class="header-title">🧭 orutego</h1>
                         <p class="header-subtitle">Distance & Time Metrics</p>
                     </header>
+
+                    <!-- Navigation Tabs -->
+                    <div class="nav-tabs">
+                        <button class="nav-tab active" data-tab="single">Route</button>
+                        <button class="nav-tab" data-tab="mass">Mass Search</button>
+                    </div>
+
                     <!-- API Key Section -->
                     <div class="section">
                         <h3 class="section-title">
@@ -51,66 +58,89 @@
                         <div id="apiKeyStatus" class="status-message"></div>
                     </div>
 
-                    <!-- Address Inputs -->
-                    <div class="section">
-                        <h3 class="section-title">
-                            <i class="fas fa-map-marker-alt"></i>
-                            Addresses
-                        </h3>
+                    <!-- Single Route Mode -->
+                    <div id="singleRouteMode">
+                        <!-- Address Inputs -->
+                        <div class="section">
+                            <h3 class="section-title">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Addresses
+                            </h3>
 
-                        <div class="address-inputs">
-                            <div class="address-inputs-column">
-                                <div class="input-with-icon">
-                                    <i class="fas fa-map-marker-alt text-green"></i>
-                                    <input type="text" id="origin" placeholder="Origin address" class="input-field" />
+                            <div class="address-inputs">
+                                <div class="address-inputs-column">
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-map-marker-alt text-green"></i>
+                                        <input type="text" id="origin" placeholder="Origin address"
+                                            class="input-field" />
+                                    </div>
+
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-map-marker-alt text-red"></i>
+                                        <input type="text" id="destination" placeholder="Destination address"
+                                            class="input-field" />
+                                    </div>
                                 </div>
 
-                                <div class="input-with-icon">
-                                    <i class="fas fa-map-marker-alt text-red"></i>
-                                    <input type="text" id="destination" placeholder="Destination address"
-                                        class="input-field" />
+                                <div class="swap-container-side">
+                                    <button id="swapAddresses" class="btn-swap" title="Swap addresses">
+                                        <i class="fas fa-arrows-up-down"></i>
+                                    </button>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="swap-container-side">
-                                <button id="swapAddresses" class="btn-swap" title="Swap addresses">
-                                    <i class="fas fa-arrows-up-down"></i>
+                        <!-- Travel Mode -->
+                        <div class="section">
+                            <h3 class="section-title">
+                                <i class="fas fa-route"></i>
+                                Travel Mode
+                            </h3>
+                            <div class="travel-modes">
+                                <button class="travel-mode active" data-mode="driving">
+                                    <i class="fas fa-car"></i>
+                                    Driving
+                                </button>
+                                <button class="travel-mode" data-mode="walking">
+                                    <i class="fas fa-walking"></i>
+                                    Walking
+                                </button>
+                                <button class="travel-mode" data-mode="bicycling">
+                                    <i class="fas fa-bicycle"></i>
+                                    Cycling
+                                </button>
+                                <button class="travel-mode" data-mode="transit">
+                                    <i class="fas fa-bus"></i>
+                                    Transit
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Calculate Button -->
+                        <button id="calculateBtn" class="btn btn-primary btn-large">
+                            <i class="fas fa-calculator"></i>
+                            <span id="calculateText">Calculate Route</span>
+                        </button>
                     </div>
 
-                    <!-- Travel Mode -->
-                    <div class="section">
-                        <h3 class="section-title">
-                            <i class="fas fa-route"></i>
-                            Travel Mode
-                        </h3>
-                        <div class="travel-modes">
-                            <button class="travel-mode active" data-mode="driving">
-                                <i class="fas fa-car"></i>
-                                Driving
-                            </button>
-                            <button class="travel-mode" data-mode="walking">
-                                <i class="fas fa-walking"></i>
-                                Walking
-                            </button>
-                            <button class="travel-mode" data-mode="bicycling">
-                                <i class="fas fa-bicycle"></i>
-                                Cycling
-                            </button>
-                            <button class="travel-mode" data-mode="transit">
-                                <i class="fas fa-bus"></i>
-                                Transit
-                            </button>
+                    <!-- Mass Search Mode (Hidden by default) -->
+                    <div id="massSearchMode" class="hidden">
+                        <div class="section">
+                            <h3 class="section-title">
+                                <i class="fas fa-list"></i>
+                                Bulk Address Search
+                            </h3>
+                            <p class="text-sm text-gray margin-bottom-sm">Enter addresses (one per line):</p>
+                            <textarea id="massInput" class="input-field textarea-field" rows="8"
+                                placeholder="Enter addresses here, one per line..."></textarea>
+                            <div class="address-count" id="addressCount">0 addresses</div>
                         </div>
-                    </div>
 
-                    <!-- Calculate Button -->
-                    <button id="calculateBtn" class="btn btn-primary btn-large">
-                        <i class="fas fa-calculator"></i>
-                        <span id="calculateText">Calculate Route</span>
-                    </button>
+                        <button id="massGeocodeBtn" class="btn btn-primary btn-large">
+                            <i class="fas fa-search-location"></i>
+                            <span id="massGeocodeText">Process Addresses</span>
+                        </button>
+                    </div>
 
                     <!-- Error Display -->
                     <div id="errorMessage" class="error-message"></div>
@@ -128,6 +158,7 @@
                         Calculated Metrics
                     </h3>
 
+                    <!-- Single Route Results -->
                     <div id="resultsContainer">
                         <div id="noResults" class="no-results">
                             <i class="fas fa-compass compass-icon"></i>
@@ -161,6 +192,34 @@
                                 <p class="format-description">Comma Style: Origin Latitude, Origin Longitude,
                                     Destination Latitude, Destination Longitude, Distance, Duration, Decimal Hours</p>
                                 <div id="copyStatus" class="copy-status"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mass Search Results -->
+                    <div id="massResultsContainer" class="hidden">
+                        <div id="massResultsContent" class="results-content">
+                            <div class="results-toolbar">
+                                <div class="results-count" id="massResultsCount">0 results</div>
+                                <button id="copyMassResultsBtn" class="btn-small btn-outline">
+                                    <i class="fas fa-copy"></i> Copy All (CSV)
+                                </button>
+                            </div>
+
+                            <div class="table-container">
+                                <table class="results-table" id="massResultsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Address</th>
+                                            <th>Latitude</th>
+                                            <th>Longitude</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Rows generated by JS -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

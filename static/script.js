@@ -40,6 +40,16 @@ class OrutegoApp {
         // Copy button
         document.getElementById('copyBtn').addEventListener('click', this.copyToClipboard.bind(this));
 
+        // Navigation Tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => this.switchTab(e.target));
+        });
+
+        // Mass Search
+        document.getElementById('massInput').addEventListener('input', this.updateAddressCount.bind(this));
+        document.getElementById('massGeocodeBtn').addEventListener('click', this.processMassGeocode.bind(this));
+        document.getElementById('copyMassResultsBtn').addEventListener('click', this.copyMassResults.bind(this));
+
         // Enter key support for inputs
         document.getElementById('apiKey').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.saveApiKey();
@@ -608,6 +618,152 @@ class OrutegoApp {
                 element.style.display = 'none';
             }, 3000);
         }
+    }
+
+    switchTab(selectedTab) {
+        // Update tab styles
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        selectedTab.classList.add('active');
+
+        // Toggle views
+        const tabId = selectedTab.dataset.tab;
+        if (tabId === 'single') {
+            document.getElementById('singleRouteMode').classList.remove('hidden');
+            document.getElementById('massSearchMode').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            document.getElementById('massResultsContainer').classList.add('hidden');
+            document.querySelector('.map-section').classList.remove('hidden');
+        } else {
+            document.getElementById('singleRouteMode').classList.add('hidden');
+            document.getElementById('massSearchMode').classList.remove('hidden');
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('massResultsContainer').classList.remove('hidden');
+            document.querySelector('.map-section').classList.add('hidden');
+        }
+    }
+
+    updateAddressCount() {
+        const input = document.getElementById('massInput').value;
+        const lines = input.split('\n').filter(line => line.trim() !== '');
+        document.getElementById('addressCount').textContent = `${lines.length} addresses`;
+    }
+
+    async processMassGeocode() {
+        const input = document.getElementById('massInput').value;
+        const addresses = input.split('\n').filter(line => line.trim() !== '');
+
+        if (addresses.length === 0) {
+            this.showError('Please enter at least one address');
+            return;
+        }
+
+        if (!this.isApiKeySaved) {
+            this.showError('Please save your API key first');
+            return;
+        }
+
+        // Show loading state
+        const btn = document.getElementById('massGeocodeBtn');
+        const btnText = document.getElementById('massGeocodeText');
+        const icon = btn.querySelector('i');
+        const originalText = btnText.textContent;
+
+        btn.disabled = true;
+        btnText.textContent = 'Processing...';
+        icon.classList.remove('fa-search-location');
+        icon.classList.add('fas', 'fa-spinner', 'spinning');
+
+        try {
+            const response = await fetch('/api/mass-geocode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ addresses: addresses })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.displayMassResults(data.results);
+            } else {
+                this.showError(data.error || 'Mass geocoding failed');
+            }
+        } catch (error) {
+            this.showError('Network error. Please try again.');
+        } finally {
+            // Reset button
+            btn.disabled = false;
+            btnText.textContent = originalText;
+            icon.classList.remove('fas', 'fa-spinner', 'spinning');
+            icon.classList.add('fas', 'fa-search-location');
+        }
+    }
+
+    displayMassResults(results) {
+        const tbody = document.querySelector('#massResultsTable tbody');
+        tbody.innerHTML = ''; // Clear existing
+
+        document.getElementById('massResultsCount').textContent = `${results.length} results`;
+
+        results.forEach(result => {
+            const tr = document.createElement('tr');
+
+            if (result.success) {
+                tr.innerHTML = `
+                    <td>${result.formatted_address || result.input_address}</td>
+                    <td>${result.lat.toFixed(6)}</td>
+                    <td>${result.lng.toFixed(6)}</td>
+                    <td class="status-success"><i class="fas fa-check"></i> OK</td>
+                `;
+            } else {
+                tr.innerHTML = `
+                    <td>${result.input_address}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td class="status-error"><i class="fas fa-times"></i> ${result.error}</td>
+                `;
+            }
+            tbody.appendChild(tr);
+        });
+
+        // Show results container shouldn't be needed as tab switch handles it, 
+        // but let's make sure the content is visible
+        document.getElementById('massResultsContent').classList.remove('hidden');
+    }
+
+    copyMassResults() {
+        const rows = document.querySelectorAll('#massResultsTable tbody tr');
+        if (rows.length === 0) return;
+
+        let csvContent = "Address,Latitude,Longitude,Status\n";
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const address = `"${cells[0].textContent.replace(/"/g, '""')}"`; // Escape quotes
+            const lat = cells[1].textContent;
+            const lng = cells[2].textContent;
+            const status = cells[3].textContent.trim();
+
+            csvContent += `${address},${lat},${lng},${status}\n`;
+        });
+
+        // Copy logic
+        const textArea = document.createElement('textarea');
+        textArea.value = csvContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        const btn = document.getElementById('copyMassResultsBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 2000);
     }
 }
 

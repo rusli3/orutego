@@ -71,6 +71,65 @@ def geocode_address():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/mass-geocode', methods=['POST'])
+def mass_geocode():
+    """Geocode multiple addresses"""
+    try:
+        data = request.get_json()
+        addresses = data.get('addresses', [])
+        
+        if not addresses:
+            return jsonify({'success': False, 'error': 'No addresses provided'})
+        
+        api_key = session.get('google_maps_api_key')
+        if not api_key:
+            return jsonify({'success': False, 'error': 'API key not found. Please save your API key first.'})
+            
+        results = []
+        
+        for addr in addresses:
+            if not addr or not addr.strip():
+                continue
+                
+            clean_addr = addr.strip()
+            
+            # Make request to Google Geocoding API
+            params = {
+                'address': clean_addr,
+                'key': api_key
+            }
+            
+            try:
+                response = requests.get(GEOCODE_URL, params=params)
+                data = response.json()
+                
+                if data['status'] == 'OK' and data['results']:
+                    location = data['results'][0]['geometry']['location']
+                    results.append({
+                        'input_address': clean_addr,
+                        'success': True,
+                        'lat': location['lat'],
+                        'lng': location['lng'],
+                        'formatted_address': data['results'][0]['formatted_address']
+                    })
+                else:
+                    results.append({
+                        'input_address': clean_addr,
+                        'success': False,
+                        'error': data.get("status", "Unknown error")
+                    })
+            except Exception as req_err:
+                results.append({
+                    'input_address': clean_addr,
+                    'success': False,
+                    'error': str(req_err)
+                })
+        
+        return jsonify({'success': True, 'results': results})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/calculate', methods=['POST'])
 def calculate_route():
     """Calculate distance and time between two addresses"""
