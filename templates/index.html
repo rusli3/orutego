@@ -36,7 +36,7 @@
                     <!-- Navigation Tabs -->
                     <div class="nav-tabs">
                         <button class="nav-tab active" data-tab="single">Route</button>
-                        <button class="nav-tab" data-tab="mass">Mass Search</button>
+                        <button class="nav-tab" data-tab="mass">Mass Route</button>
                     </div>
 
                     <!-- API Key Section -->
@@ -123,22 +123,59 @@
                         </button>
                     </div>
 
-                    <!-- Mass Search Mode (Hidden by default) -->
-                    <div id="massSearchMode" class="hidden">
+                    <!-- Mass Route Mode (Hidden by default) -->
+                    <div id="massRouteMode" class="hidden">
+                        <!-- Destination Input -->
                         <div class="section">
                             <h3 class="section-title">
-                                <i class="fas fa-list"></i>
-                                Bulk Address Search
+                                <i class="fas fa-map-marker-alt text-red"></i>
+                                Destination
                             </h3>
-                            <p class="text-sm text-gray margin-bottom-sm">Enter addresses (one per line):</p>
+                            <input type="text" id="massDestination" placeholder="Enter destination address"
+                                class="input-field" />
+                        </div>
+
+                        <!-- Origin Addresses -->
+                        <div class="section">
+                            <h3 class="section-title">
+                                <i class="fas fa-map-marker-alt text-green"></i>
+                                Origin Addresses
+                            </h3>
+                            <p class="text-sm text-gray margin-bottom-sm">Enter origin addresses (one per line):</p>
                             <textarea id="massInput" class="input-field textarea-field" rows="8"
-                                placeholder="Enter addresses here, one per line..."></textarea>
+                                placeholder="Enter origin addresses here, one per line..."></textarea>
                             <div class="address-count" id="addressCount">0 addresses</div>
                         </div>
 
-                        <button id="massGeocodeBtn" class="btn btn-primary btn-large">
-                            <i class="fas fa-search-location"></i>
-                            <span id="massGeocodeText">Process Addresses</span>
+                        <!-- Travel Mode -->
+                        <div class="section">
+                            <h3 class="section-title">
+                                <i class="fas fa-route"></i>
+                                Travel Mode
+                            </h3>
+                            <div class="travel-modes">
+                                <button class="travel-mode-mass active" data-mode="driving">
+                                    <i class="fas fa-car"></i>
+                                    Driving
+                                </button>
+                                <button class="travel-mode-mass" data-mode="walking">
+                                    <i class="fas fa-walking"></i>
+                                    Walking
+                                </button>
+                                <button class="travel-mode-mass" data-mode="bicycling">
+                                    <i class="fas fa-bicycle"></i>
+                                    Cycling
+                                </button>
+                                <button class="travel-mode-mass" data-mode="transit">
+                                    <i class="fas fa-bus"></i>
+                                    Transit
+                                </button>
+                            </div>
+                        </div>
+
+                        <button id="massRouteBtn" class="btn btn-primary btn-large">
+                            <i class="fas fa-calculator"></i>
+                            <span id="massRouteText">Calculate Routes</span>
                         </button>
                     </div>
 
@@ -210,9 +247,13 @@
                                 <table class="results-table" id="massResultsTable">
                                     <thead>
                                         <tr>
-                                            <th>Address</th>
-                                            <th>Latitude</th>
-                                            <th>Longitude</th>
+                                            <th>Lat Origin</th>
+                                            <th>Lng Origin</th>
+                                            <th>Lat Dest</th>
+                                            <th>Lng Dest</th>
+                                            <th>Distance</th>
+                                            <th>Duration</th>
+                                            <th>Decimal</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>

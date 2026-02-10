@@ -11,7 +11,7 @@ orutego is a modern web application for calculating travel distance (km) and tra
 - 🗺️ **Interactive Map**: Route visualization with markers and polylines
 - 💾 **Session Management**: API key storage and result caching
 - 📋 **Copy to Clipboard**: Easy copying of coordinate data in CSV format
-- 📦 **Mass Search**: Bulk address geocoding with visual status and CSV export support
+- 📦 **Mass Route**: Bulk route calculation from multiple origins to a single destination with CSV export
 
 ## 🚀 Getting Started
 
@@ -22,7 +22,7 @@ orutego is a modern web application for calculating travel distance (km) and tra
   - Geocoding API
   - Distance Matrix API
   - Directions API
-  - **Maps JavaScript API** (newly required for interactive maps)
+  - **Maps JavaScript API**
 
 ### Installation
 
@@ -56,13 +56,15 @@ orutego is a modern web application for calculating travel distance (km) and tra
 5. **View Results**: Coordinates, distance, and time will be displayed
 6. **View Map**: Interactive map with route will appear below
 
-### 📦 Mass Search Mode
+### 📦 Mass Route Mode
 
-1. **Switch Tab**: Click the "Mass Search" tab at the top of the sidebar
-2. **Input Addresses**: Enter multiple addresses (one per line) in the text area
-3. **Process**: Click "Process Addresses" to geocode them in bulk
-4. **View Results**: See the status, latitude, and longitude for each address
-5. **Export**: Click "Copy All (CSV)" to get a CSV-formatted list of results
+1. **Switch Tab**: Click the "Mass Route" tab at the top of the sidebar
+2. **Enter Destination**: Input a single destination address
+3. **Input Origins**: Enter multiple origin addresses (one per line) in the text area
+4. **Select Mode**: Choose travel mode (driving/walking/cycling/transit)
+5. **Calculate**: Click "Calculate Routes" to process all routes
+6. **View Results**: See coordinates, distance, and travel time for each origin
+7. **Export**: Click "Copy All (CSV)" to get a CSV-formatted list of results
 
 ## 📊 Data Output Format
 
@@ -77,14 +79,13 @@ The coordinate data is displayed in a raw comma-separated format **without heade
  -0.026700,109.342100,-0.114200,109.406500,12.84,01:30,1.50
  ```
  
- ### Mass Search Export Format
+ ### Mass Route Export Format
  
- The mass search results are exported in **CSV format with headers**:
+ The mass route results are exported in **CSV format with headers**:
  
  ```csv
- Address,Latitude,Longitude,Status
- "Jalan Jendral Ahmad Yani, Pontianak",-0.032100,109.345600,OK
- "Invalid Address Example",-,-,ZERO_RESULTS
+ Lat_Origin,Lng_Origin,Lat_Destination,Lng_Destination,Distance_km,Duration_HHMM,Decimal_Hours,Status
+ -0.032100,109.345600,-0.114200,109.406500,12.84,01:30,1.50,OK
  ```
 
 ## 🔧 Technical Details
@@ -106,7 +107,7 @@ The coordinate data is displayed in a raw comma-separated format **without heade
 - `GET /` - Main application page
 - `POST /api/save-key` - Save Google Maps API key
 - `POST /api/calculate` - Calculate route distance and time
-- `GET /api/get-cached-result` - Retrieve cached calculation
+- `POST /api/mass-route` - Calculate routes from multiple origins to single destination
 
 ## 🎨 UI Features
 
@@ -137,20 +138,22 @@ The coordinate data is displayed in a raw comma-separated format **without heade
 
 ```
 orutego/
-├── .gitignore             # Git ignore file
-├── LICENSE                # MIT License
-├── README.md              # This file
-├── CHANGELOG.md           # Version history and changes
-├── DEMO.md                # Testing guide with examples
-├── DEPLOYMENT.md          # Production deployment guide
-├── app.py                 # Flask backend application
-├── requirements.txt       # Python dependencies
-├── test_decimal_conversion.py  # Test suite for decimal hours
+├── .env.example               # Environment variables template
+├── .gitignore                 # Git ignore file
+├── LICENSE                    # MIT License
+├── README.md                  # This file
+├── CHANGELOG.md               # Version history and changes
+├── DEPLOYMENT.md              # Production deployment guide
+├── app.py                     # Flask backend application
+├── utils.py                   # Utility functions for Google Maps API
+├── requirements.txt           # Python dependencies
+├── style.css                  # Legacy CSS file
+├── test_decimal_conversion.py # Test suite for decimal hours
 ├── templates/
-│   └── index.html        # Main HTML template
+│   └── index.html             # Main HTML template
 └── static/
-    ├── styles.css        # CSS styling and animations
-    └── script.js         # JavaScript application logic
+    ├── styles.css             # CSS styling and animations
+    └── script.js              # JavaScript application logic
 ```
 
 ## 🚦 Getting Your Google Maps API Key

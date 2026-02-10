@@ -223,7 +223,8 @@ body {
     gap: 0.5rem;
 }
 
-.travel-mode {
+.travel-mode,
+.travel-mode-mass {
     background: white;
     border: 2px solid #e5e7eb;
     border-radius: 8px;
@@ -238,12 +239,14 @@ body {
     color: #374151;
 }
 
-.travel-mode:hover {
+.travel-mode:hover,
+.travel-mode-mass:hover {
     border-color: #10b981;
     background: #f0fdf4;
 }
 
-.travel-mode.active {
+.travel-mode.active,
+.travel-mode-mass.active {
     background: #10b981;
     border-color: #10b981;
     color: white;

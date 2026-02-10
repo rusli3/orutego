@@ -71,53 +71,108 @@ def geocode_address():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/api/mass-geocode', methods=['POST'])
-def mass_geocode():
-    """Geocode multiple addresses"""
+@app.route('/api/mass-route', methods=['POST'])
+def mass_route():
+    """Calculate distance and time from multiple origins to a single destination"""
     try:
         data = request.get_json()
-        addresses = data.get('addresses', [])
+        origins = data.get('origins', [])
+        destination = data.get('destination', '').strip()
+        travel_mode = data.get('travelMode', 'driving').lower()
         
-        if not addresses:
-            return jsonify({'success': False, 'error': 'No addresses provided'})
+        if not origins:
+            return jsonify({'success': False, 'error': 'No origin addresses provided'})
+        
+        if not destination:
+            return jsonify({'success': False, 'error': 'Destination address is required'})
         
         api_key = session.get('google_maps_api_key')
         if not api_key:
             return jsonify({'success': False, 'error': 'API key not found. Please save your API key first.'})
-            
+        
+        # Geocode destination once (shared for all origins)
+        dest_params = {'address': destination, 'key': api_key}
+        dest_response = requests.get(GEOCODE_URL, params=dest_params)
+        dest_data = dest_response.json()
+        
+        if dest_data['status'] != 'OK' or not dest_data['results']:
+            return jsonify({'success': False, 'error': f'Could not geocode destination: {dest_data.get("status", "Unknown error")}'})
+        
+        dest_location = dest_data['results'][0]['geometry']['location']
+        dest_coords = [dest_location['lat'], dest_location['lng']]
+        
         results = []
         
-        for addr in addresses:
+        for addr in origins:
             if not addr or not addr.strip():
                 continue
                 
             clean_addr = addr.strip()
             
-            # Make request to Google Geocoding API
-            params = {
-                'address': clean_addr,
-                'key': api_key
-            }
-            
             try:
-                response = requests.get(GEOCODE_URL, params=params)
-                data = response.json()
+                # Geocode origin
+                origin_params = {'address': clean_addr, 'key': api_key}
+                origin_response = requests.get(GEOCODE_URL, params=origin_params)
+                origin_data = origin_response.json()
                 
-                if data['status'] == 'OK' and data['results']:
-                    location = data['results'][0]['geometry']['location']
+                if origin_data['status'] != 'OK' or not origin_data['results']:
                     results.append({
                         'input_address': clean_addr,
-                        'success': True,
-                        'lat': location['lat'],
-                        'lng': location['lng'],
-                        'formatted_address': data['results'][0]['formatted_address']
+                        'success': False,
+                        'error': origin_data.get("status", "Unknown error")
                     })
+                    continue
+                
+                origin_location = origin_data['results'][0]['geometry']['location']
+                origin_coords = [origin_location['lat'], origin_location['lng']]
+                
+                # Calculate distance and time using Distance Matrix API
+                matrix_params = {
+                    'origins': f"{origin_coords[0]},{origin_coords[1]}",
+                    'destinations': f"{dest_coords[0]},{dest_coords[1]}",
+                    'mode': travel_mode,
+                    'units': 'metric',
+                    'key': api_key
+                }
+                
+                matrix_response = requests.get(DISTANCE_MATRIX_URL, params=matrix_params)
+                matrix_data = matrix_response.json()
+                
+                if matrix_data['status'] == 'OK' and matrix_data['rows']:
+                    element = matrix_data['rows'][0]['elements'][0]
+                    
+                    if element['status'] == 'OK':
+                        distance_km = element['distance']['value'] / 1000
+                        duration_seconds = element['duration']['value']
+                        
+                        duration_minutes = duration_seconds / 60
+                        hours = int(duration_minutes // 60)
+                        minutes = int(duration_minutes % 60)
+                        duration_formatted = f"{hours:02d}:{minutes:02d}"
+                        decimal_hours = round(hours + (minutes / 60), 2)
+                        
+                        results.append({
+                            'input_address': clean_addr,
+                            'success': True,
+                            'originCoords': origin_coords,
+                            'destinationCoords': dest_coords,
+                            'distance': round(distance_km, 2),
+                            'duration': duration_formatted,
+                            'decimalHours': decimal_hours
+                        })
+                    else:
+                        results.append({
+                            'input_address': clean_addr,
+                            'success': False,
+                            'error': f'Route failed: {element["status"]}'
+                        })
                 else:
                     results.append({
                         'input_address': clean_addr,
                         'success': False,
-                        'error': data.get("status", "Unknown error")
+                        'error': 'Distance Matrix API request failed'
                     })
+                    
             except Exception as req_err:
                 results.append({
                     'input_address': clean_addr,
@@ -125,7 +180,7 @@ def mass_geocode():
                     'error': str(req_err)
                 })
         
-        return jsonify({'success': True, 'results': results})
+        return jsonify({'success': True, 'results': results, 'destinationCoords': dest_coords})
     
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})

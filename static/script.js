@@ -2,6 +2,7 @@
 class OrutegoApp {
     constructor() {
         this.selectedMode = 'driving';
+        this.massTravelMode = 'driving';
         this.isApiKeySaved = false;
         this.lastResult = null;
         this.googleMap = null;
@@ -45,10 +46,15 @@ class OrutegoApp {
             tab.addEventListener('click', (e) => this.switchTab(e.target));
         });
 
-        // Mass Search
+        // Mass Route
         document.getElementById('massInput').addEventListener('input', this.updateAddressCount.bind(this));
-        document.getElementById('massGeocodeBtn').addEventListener('click', this.processMassGeocode.bind(this));
+        document.getElementById('massRouteBtn').addEventListener('click', this.processMassRoute.bind(this));
         document.getElementById('copyMassResultsBtn').addEventListener('click', this.copyMassResults.bind(this));
+
+        // Mass Route travel mode selection
+        document.querySelectorAll('.travel-mode-mass').forEach(btn => {
+            btn.addEventListener('click', (e) => this.selectMassTravelMode(e.target.closest('.travel-mode-mass')));
+        });
 
         // Enter key support for inputs
         document.getElementById('apiKey').addEventListener('keypress', (e) => {
@@ -631,13 +637,13 @@ class OrutegoApp {
         const tabId = selectedTab.dataset.tab;
         if (tabId === 'single') {
             document.getElementById('singleRouteMode').classList.remove('hidden');
-            document.getElementById('massSearchMode').classList.add('hidden');
+            document.getElementById('massRouteMode').classList.add('hidden');
             document.getElementById('resultsContainer').classList.remove('hidden');
             document.getElementById('massResultsContainer').classList.add('hidden');
             document.querySelector('.map-section').classList.remove('hidden');
         } else {
             document.getElementById('singleRouteMode').classList.add('hidden');
-            document.getElementById('massSearchMode').classList.remove('hidden');
+            document.getElementById('massRouteMode').classList.remove('hidden');
             document.getElementById('resultsContainer').classList.add('hidden');
             document.getElementById('massResultsContainer').classList.remove('hidden');
             document.querySelector('.map-section').classList.add('hidden');
@@ -650,12 +656,26 @@ class OrutegoApp {
         document.getElementById('addressCount').textContent = `${lines.length} addresses`;
     }
 
-    async processMassGeocode() {
-        const input = document.getElementById('massInput').value;
-        const addresses = input.split('\n').filter(line => line.trim() !== '');
+    selectMassTravelMode(selectedBtn) {
+        document.querySelectorAll('.travel-mode-mass').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        selectedBtn.classList.add('active');
+        this.massTravelMode = selectedBtn.dataset.mode;
+    }
 
-        if (addresses.length === 0) {
-            this.showError('Please enter at least one address');
+    async processMassRoute() {
+        const input = document.getElementById('massInput').value;
+        const origins = input.split('\n').filter(line => line.trim() !== '');
+        const destination = document.getElementById('massDestination').value.trim();
+
+        if (!destination) {
+            this.showError('Please enter a destination address');
+            return;
+        }
+
+        if (origins.length === 0) {
+            this.showError('Please enter at least one origin address');
             return;
         }
 
@@ -665,23 +685,26 @@ class OrutegoApp {
         }
 
         // Show loading state
-        const btn = document.getElementById('massGeocodeBtn');
-        const btnText = document.getElementById('massGeocodeText');
+        const btn = document.getElementById('massRouteBtn');
+        const btnText = document.getElementById('massRouteText');
         const icon = btn.querySelector('i');
         const originalText = btnText.textContent;
 
         btn.disabled = true;
-        btnText.textContent = 'Processing...';
-        icon.classList.remove('fa-search-location');
-        icon.classList.add('fas', 'fa-spinner', 'spinning');
+        btnText.textContent = 'Calculating...';
+        icon.classList.add('spinning');
 
         try {
-            const response = await fetch('/api/mass-geocode', {
+            const response = await fetch('/api/mass-route', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ addresses: addresses })
+                body: JSON.stringify({
+                    origins: origins,
+                    destination: destination,
+                    travelMode: this.massTravelMode
+                })
             });
 
             const data = await response.json();
@@ -689,22 +712,20 @@ class OrutegoApp {
             if (data.success) {
                 this.displayMassResults(data.results);
             } else {
-                this.showError(data.error || 'Mass geocoding failed');
+                this.showError(data.error || 'Mass route calculation failed');
             }
         } catch (error) {
             this.showError('Network error. Please try again.');
         } finally {
-            // Reset button
             btn.disabled = false;
             btnText.textContent = originalText;
-            icon.classList.remove('fas', 'fa-spinner', 'spinning');
-            icon.classList.add('fas', 'fa-search-location');
+            icon.classList.remove('spinning');
         }
     }
 
     displayMassResults(results) {
         const tbody = document.querySelector('#massResultsTable tbody');
-        tbody.innerHTML = ''; // Clear existing
+        tbody.innerHTML = '';
 
         document.getElementById('massResultsCount').textContent = `${results.length} results`;
 
@@ -712,25 +733,30 @@ class OrutegoApp {
             const tr = document.createElement('tr');
 
             if (result.success) {
+                const latO = parseFloat(result.originCoords[0]).toFixed(6);
+                const lngO = parseFloat(result.originCoords[1]).toFixed(6);
+                const latD = parseFloat(result.destinationCoords[0]).toFixed(6);
+                const lngD = parseFloat(result.destinationCoords[1]).toFixed(6);
+
                 tr.innerHTML = `
-                    <td>${result.formatted_address || result.input_address}</td>
-                    <td>${result.lat.toFixed(6)}</td>
-                    <td>${result.lng.toFixed(6)}</td>
+                    <td>${latO}</td>
+                    <td>${lngO}</td>
+                    <td>${latD}</td>
+                    <td>${lngD}</td>
+                    <td>${result.distance}</td>
+                    <td>${result.duration}</td>
+                    <td>${result.decimalHours}</td>
                     <td class="status-success"><i class="fas fa-check"></i> OK</td>
                 `;
             } else {
                 tr.innerHTML = `
-                    <td>${result.input_address}</td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td colspan="7">${result.input_address}</td>
                     <td class="status-error"><i class="fas fa-times"></i> ${result.error}</td>
                 `;
             }
             tbody.appendChild(tr);
         });
 
-        // Show results container shouldn't be needed as tab switch handles it, 
-        // but let's make sure the content is visible
         document.getElementById('massResultsContent').classList.remove('hidden');
     }
 
@@ -738,25 +764,41 @@ class OrutegoApp {
         const rows = document.querySelectorAll('#massResultsTable tbody tr');
         if (rows.length === 0) return;
 
-        let csvContent = "Address,Latitude,Longitude,Status\n";
+        let csvContent = "Lat_Origin,Lng_Origin,Lat_Destination,Lng_Destination,Distance_km,Duration_HHMM,Decimal_Hours,Status\n";
 
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
-            const address = `"${cells[0].textContent.replace(/"/g, '""')}"`; // Escape quotes
-            const lat = cells[1].textContent;
-            const lng = cells[2].textContent;
-            const status = cells[3].textContent.trim();
-
-            csvContent += `${address},${lat},${lng},${status}\n`;
+            // Check if this is a success row (8 cells) or error row (2 cells with colspan)
+            if (cells.length === 8) {
+                const latO = cells[0].textContent;
+                const lngO = cells[1].textContent;
+                const latD = cells[2].textContent;
+                const lngD = cells[3].textContent;
+                const distance = cells[4].textContent;
+                const duration = cells[5].textContent;
+                const decimal = cells[6].textContent;
+                const status = cells[7].textContent.trim();
+                csvContent += `${latO},${lngO},${latD},${lngD},${distance},${duration},${decimal},${status}\n`;
+            } else {
+                const address = cells[0].textContent;
+                const status = cells[1].textContent.trim();
+                csvContent += `-,-,-,-,-,-,-,${status} (${address})\n`;
+            }
         });
 
-        // Copy logic
-        const textArea = document.createElement('textarea');
-        textArea.value = csvContent;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
+        // Copy to clipboard
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(csvContent);
+        } else {
+            const textArea = document.createElement('textarea');
+            textArea.value = csvContent;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
 
         const btn = document.getElementById('copyMassResultsBtn');
         const originalText = btn.innerHTML;

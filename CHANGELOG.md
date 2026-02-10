@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-10
+
+### Added
+- 📦 **Mass Route**: New feature to calculate distance and travel time from multiple origins to a single destination
+  - Destination input field for single destination address
+  - Origin textarea for bulk input (one address per line)
+  - Travel mode selection (driving/walking/cycling/transit)
+  - Results table with coordinates, distance (km), duration (HH:MM), and decimal hours
+  - CSV export with format: `Lat_Origin,Lng_Origin,Lat_Destination,Lng_Destination,Distance_km,Duration_HHMM,Decimal_Hours,Status`
+- 🔌 **New API Endpoint**: `POST /api/mass-route` for bulk route calculation
+
+### Changed
+- 🔄 **Tab renamed**: "Mass Search" → "Mass Route"
+- 📝 **README.md**: Updated documentation for Mass Route feature, fixed project structure to match actual files
+
+### Removed
+- ❌ **Mass Search geocode-only**: Replaced by Mass Route with full distance/time calculation
+- ❌ **`/api/mass-geocode` endpoint**: Replaced by `/api/mass-route`
+
+---
+
 ## [1.0.0] - 2025-09-24
 
 ### Added
